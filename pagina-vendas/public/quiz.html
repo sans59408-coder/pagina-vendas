@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: Leitura Comportamental</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                        'title': ['Cinzel', 'serif'],
+                        'mono': ['Share Tech Mono', 'monospace'],
+                    },
+                    colors: {
+                        investigate: {
+                            dark: '#050505',
+                            panel: '#111111',
+                            red: '#8b0000',
+                            redglow: '#ff3333',
+                            text: '#d4d4d8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            background-image: 
+                radial-gradient(circle at center, #111111 0%, #050505 100%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            color: #d4d4d8;
+        }
+
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            z-index: 2;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .fade-in { animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        .option-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            left: -100%; top: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 51, 51, 0.15), transparent);
+            transition: all 0.5s ease;
+        }
+        .option-btn:hover::before { left: 100%; }
+        .option-btn:hover {
+            border-color: #ff3333;
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.2);
+            transform: translateX(8px);
+            background-color: rgba(255, 51, 51, 0.05);
+        }
+
+        .red-glow {
+            text-shadow: 0 0 15px rgba(255, 51, 51, 0.8), 0 0 30px rgba(255, 51, 51, 0.4);
+        }
+        
+        .image-container img {
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,1);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .image-container img:hover {
+            transform: scale(1.02);
+            border-color: #ff3333;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 py-12">
+
+    <div id="app" class="relative z-10 w-full max-w-2xl bg-investigate-panel border-y-2 border-investigate-red/30 md:border md:border-neutral-800 md:rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.9)] p-6 md:p-12">
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                type: 'intro',
+                title: 'QUIZ: QUÃO BOM VOCÊ É EM LER PESSOAS?',
+                warning: 'AVISO: Este sistema foi desenhado para detectar e avaliar o seu nível real de percepção comportamental. A maioria das pessoas falha criticamente em notar os sinais vitais.',
+                image: '10 Terrifying Experiments From Real History.jpg',
+                text: 'Descubra se você possui a capacidade oculta de identificar os padrões que as pessoas tentam esconder.',
+                button: 'INICIAR AVALIAÇÃO'
+            },
+            {
+                type: 'question', number: 1,
+                question: 'Quando você conhece alguém pela primeira vez, o que mais chama sua atenção?',
+                options: ['Expressões faciais e olhar', 'Forma de falar e escolha das palavras', 'Postura e movimentos corporais', 'Normalmente não presto atenção nesses detalhes']
+            },
+            {
+                type: 'question', number: 2,
+                question: 'Durante uma conversa, você percebe quando o comportamento da pessoa muda repentinamente?',
+                options: ['Sim, quase imediatamente', 'Às vezes percebo, mas não sei interpretar', 'Só percebo quando a mudança é muito óbvia', 'Dificilmente noto']
+            },
+            {
+                type: 'question', number: 3,
+                question: 'Se alguém diz que está tranquilo, mas começa a mudar o tom de voz e o comportamento, o que você faria?',
+                options: ['Prestaria atenção na mudança antes de concluir qualquer coisa', 'Acreditaria no que a pessoa disse', 'Tentaria descobrir imediatamente se ela está mentindo', 'Provavelmente nem perceberia']
+            },
+            {
+                type: 'break',
+                subtitle: 'BREAK 1 // CLASSIFICADO',
+                title: 'AS PESSOAS FALAM MESMO QUANDO ESTÃO EM SILÊNCIO',
+                image: 'Don Paul Bales_ Testimony in the Shadows.jpg',
+                text: 'Uma mudança no olhar.<br>Uma pausa diferente.<br>Um movimento repetitivo.<br>Uma alteração repentina no comportamento.<br><br>Isoladamente, um sinal pode não provar nada. Mas <strong>observar padrões e contexto</strong> pode revelar verdades obscuras que passam completamente despercebidas.',
+                button: '[AVANÇAR ANÁLISE]'
+            },
+            {
+                type: 'question', number: 4,
+                question: 'Quais sinais você gostaria de aprender a observar melhor?',
+                options: ['Expressões e mudanças faciais', 'Linguagem corporal', 'Mudanças na comunicação', 'Padrões de comportamento', 'Inconsistências entre fala e comportamento', 'Mudanças emocionais']
+            },
+            {
+                type: 'question', number: 5,
+                question: 'O que você considera mais difícil ao tentar entender alguém?',
+                options: ['Saber o que realmente observar', 'Separar um comportamento normal de algo relevante', 'Conectar diferentes sinais', 'Entender a possível motivação por trás do comportamento']
+            },
+            {
+                type: 'question', number: 6,
+                question: 'Quando alguém apresenta um comportamento estranho, você costuma pensar primeiro...',
+                options: ['"O que pode ter provocado essa mudança?"', '"Será que existe um padrão aqui?"', '"O que aconteceu antes desse comportamento?"', 'Normalmente não analiso dessa forma']
+            },
+            {
+                type: 'break',
+                subtitle: 'BREAK 2 // PADRÕES Ocultos',
+                title: 'NÃO É SOBRE "ADIVINHAR" O QUE ALGUÉM PENSA',
+                image: 'Investigation Scene.jpg',
+                text: 'É sobre aprender a observar com precisão clínica.<br><br>O erro amador é olhar para um gesto isolado e tirar uma conclusão. A análise fica infinitamente mais poderosa quando você começa a conectar:<br><br><span class="block bg-red-950/30 border-l-4 border-investigate-redglow text-investigate-redglow font-mono p-4 my-4 shadow-inner text-lg">Comportamento + contexto + mudanças + padrões.</span><br>É aí que você começa a enxergar muito além do óbvio.',
+                button: '[CONTINUAR]'
+            },
+            {
+                type: 'question', number: 7,
+                question: 'Em uma investigação, o que despertaria mais sua curiosidade?',
+                options: ['Entender a personalidade de um suspeito', 'Descobrir possíveis motivações', 'Comparar comportamento e depoimento', 'Encontrar padrões entre diferentes acontecimentos']
+            },
+            {
+                type: 'question', number: 8,
+                question: 'Quais habilidades você mais gostaria de desenvolver?',
+                options: ['Compreender melhor o comportamento humano', 'Aumentar minha capacidade de observação', 'Interpretar pistas comportamentais', 'Conectar comportamentos, contexto e evidências', 'Construir perfis de personagens/suspeitos', 'Entender possíveis motivações']
+            },
+            {
+                type: 'question', number: 9,
+                question: 'Imagine receber informações sobre uma pessoa, seu comportamento e uma série de evidências. O que mais gostaria de conseguir fazer?',
+                options: ['Construir hipóteses sobre sua motivação', 'Identificar padrões no comportamento', 'Encontrar inconsistências', 'Juntar tudo para reconstruir o que pode ter acontecido']
+            },
+            {
+                type: 'break',
+                subtitle: 'BREAK 3 // A MENTE POR TRÁS',
+                title: 'UM CRIME COMEÇA ANTES DA CENA DO CRIME',
+                image: 'transferir (14).jpg',
+                text: 'Antes de analisar apenas o que aconteceu, existe a pergunta mais perigosa de todas:<br><br><strong class="text-xl text-white">Por que alguém faria aquilo?</strong><br><br><ul class="list-disc pl-5 space-y-1 font-mono text-sm text-neutral-400 my-4"><li>Comportamento.</li><li>Personalidade.</li><li>Contexto.</li><li>Motivação.</li><li>Decisões.</li></ul>E depois, as evidências deixadas para trás. Entender a mente por trás da pessoa vai mudar a maneira como você enxerga qualquer investigação.',
+                button: '[CONTINUAR INVESTIGAÇÃO]'
+            },
+            {
+                type: 'question', number: 10,
+                question: 'Se você pudesse estudar um caso, qual parte gostaria de analisar primeiro?',
+                options: ['O perfil comportamental', 'A possível motivação', 'As evidências', 'A relação entre comportamento e crime']
+            },
+            {
+                type: 'question', number: 11,
+                question: 'O que seria mais interessante aprender na prática?',
+                options: ['Como observar comportamentos com mais atenção', 'Como estruturar um perfil para um suspeito', 'Como conectar motivação, comportamento e evidências', 'Como transformar tudo isso em um caso completo']
+            },
+            {
+                type: 'question', number: 12,
+                question: 'E se você pudesse aprender tudo isso enquanto constrói seu próprio caso?',
+                options: ['É exatamente o que eu gostaria', 'Quero principalmente aprender sobre comportamento', 'Quero principalmente a parte investigativa', 'Quero aprender o processo completo']
+            },
+            {
+                type: 'result',
+                title: 'PERFIL COMPORTAMENTAL TRAÇADO',
+                image: 'feiradeciencias.jpg',
+                text: 'Existe uma linha tênue entre apenas olhar para uma pessoa e realmente ter a letalidade de saber o que observar.<br><br>Pelas suas respostas, existe um potencial latente para desenvolver uma percepção estruturada sobre comportamento, padrões e motivações.<br><br>Quando você aplica isso a uma investigação, passa a ler a situação com vantagens que quase ninguém tem:<br><br><div class="font-mono text-sm bg-black/50 p-5 rounded border border-investigate-red/40 text-neutral-300 my-5 shadow-[0_0_15px_rgba(255,51,51,0.15)] space-y-2"><div class="flex items-center"><span class="text-investigate-redglow mr-2">>></span> Quem é essa pessoa?</div><div class="flex items-center"><span class="text-investigate-redglow mr-2">>></span> Como ela se comporta?</div><div class="flex items-center"><span class="text-investigate-redglow mr-2">>></span> O que pode motivá-la?</div><div class="flex items-center"><span class="text-investigate-redglow mr-2">>></span> Como isso conecta às evidências?</div></div>Agora, você terá acesso ao método restrito por trás desse processo.',
+                button: '[ACESSAR O MÉTODO AGORA]'
+            }
+        ];
+
+        let currentStep = 0;
+        const appDiv = document.getElementById('app');
+
+        function renderStep() {
+            const data = quizData[currentStep];
+            let htmlContent = '';
+
+            if (data.type === 'intro') {
+                htmlContent = `
+                    <div class="text-center fade-in">
+                        <div class="mb-4 inline-block px-4 py-1 bg-red-950/40 border border-investigate-red text-investigate-redglow font-mono text-xs tracking-widest uppercase animate-pulse">Acesso Confidencial</div>
+                        <h1 class="font-title text-4xl md:text-5xl font-black mb-6 text-white tracking-wide leading-tight red-glow">${data.title}</h1>
+                        
+                        <div class="bg-black/60 border-l-4 border-investigate-redglow p-4 mb-8 text-left shadow-lg">
+                            <p class="text-investigate-redglow font-mono text-sm font-bold uppercase tracking-wider">${data.warning}</p>
+                        </div>
+
+                        <div class="image-container mb-8">
+                            <img src="${data.image}" alt="Investigação" class="w-full max-h-80 object-cover rounded grayscale hover:grayscale-0 transition-all duration-700 opacity-80 hover:opacity-100">
+                        </div>
+
+                        <p class="text-neutral-300 mb-10 text-lg md:text-xl font-light leading-relaxed max-w-lg mx-auto">${data.text}</p>
+                        
+                        <button onclick="nextStep()" class="group relative inline-flex items-center justify-center px-10 py-5 font-bold text-white bg-investigate-red transition-all duration-300 border border-investigate-redglow rounded hover:bg-red-700 hover:shadow-[0_0_30px_rgba(255,51,51,0.6)] focus:outline-none w-full md:w-auto font-mono text-lg tracking-widest uppercase">
+                            ${data.button}
+                            <svg class="w-6 h-6 ml-4 group-hover:translate-x-3 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </button>
+                    </div>
+                `;
+            } 
+            else if (data.type === 'question') {
+                let optionsHtml = data.options.map(opt => `
+                    <button onclick="nextStep()" class="option-btn w-full text-left p-5 rounded bg-black/40 border border-neutral-800 text-neutral-300 text-base md:text-lg mb-3 hover:text-white font-sans font-medium flex items-center group shadow-md">
+                        <span class="min-w-[12px] h-3 rounded-full bg-neutral-700 mr-4 group-hover:bg-investigate-redglow group-hover:shadow-[0_0_10px_rgba(255,51,51,0.8)] transition-all"></span>
+                        ${opt}
+                    </button>
+                `).join('');
+
+                htmlContent = `
+                    <div class="fade-in">
+                        <div class="flex items-center justify-between mb-8 pb-4 border-b border-neutral-800/50">
+                            <span class="font-mono text-investigate-redglow text-sm md:text-base tracking-widest font-bold">ARQUIVO // 0${data.number}</span>
+                            <span class="font-mono text-neutral-500 text-xs md:text-sm bg-black px-3 py-1 rounded border border-neutral-800">PÁG ${currentStep}/${quizData.length - 1}</span>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-bold mb-10 text-white leading-tight font-sans tracking-tight">${data.question}</h2>
+                        <div class="space-y-3">
+                            ${optionsHtml}
+                        </div>
+                    </div>
+                `;
+            } 
+            else if (data.type === 'break' || data.type === 'result') {
+                htmlContent = `
+                    <div class="fade-in text-center">
+                        ${data.subtitle ? `<div class="font-mono text-investigate-redglow text-sm md:text-base tracking-widest mb-4 font-bold uppercase">${data.subtitle}</div>` : ''}
+                        
+                        <h2 class="font-title text-3xl md:text-4xl font-black mb-8 text-white uppercase red-glow leading-tight">${data.title}</h2>
+                        
+                        <div class="image-container mb-8">
+                            <img src="${data.image}" alt="Cena" class="w-full max-h-96 object-cover rounded grayscale hover:grayscale-0 transition-all duration-700 opacity-90 hover:opacity-100 shadow-2xl">
+                        </div>
+                        
+                        <div class="text-neutral-300 text-left mb-10 text-lg leading-relaxed font-sans font-light">
+                            ${data.text}
+                        </div>
+                        
+                        <button onclick="nextStep()" class="inline-block px-10 py-5 bg-black border-2 border-investigate-redglow text-investigate-redglow font-mono text-lg font-bold tracking-widest uppercase hover:bg-investigate-redglow hover:text-white hover:shadow-[0_0_30px_rgba(255,51,51,0.5)] transition-all duration-300 w-full rounded group">
+                            <span class="flex items-center justify-center">
+                                ${data.button}
+                                <svg class="w-6 h-6 ml-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                            </span>
+                        </button>
+                    </div>
+                `;
+            }
+
+            appDiv.innerHTML = htmlContent;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextStep() {
+            if (currentStep < quizData.length - 1) {
+                setTimeout(() => {
+                    currentStep++;
+                    renderStep();
+                }, 200);
+            } else {
+                window.location.href = "http://localhost:3000/?top=1";
+            }
+        }
+
+        renderStep();
+    </script>
+</body>
+</html>
